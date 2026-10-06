@@ -248,6 +248,12 @@ class TranslatedVirtualField:
         for fallback_language in fallback_chain:
             lookups.append(self._localized_lookup(fallback_language, bare_lookup))
 
+        # Finally, the original field is the last resort, just like in `__get__()`.
+        # It is only appended if the fallback chain did not add it already.
+        original_lookup = self._localized_lookup(DEFAULT_LANGUAGE, bare_lookup)
+        if original_lookup not in lookups:
+            lookups.append(original_lookup)
+
         # An empty translation in `i18n` must be skipped, just like `__get__()` does, so
         # `NULLIF(<lookup>, '')` is used to make `COALESCE` continue to the next language
         # in the chain. The lookup for the default language is a plain reference to the
